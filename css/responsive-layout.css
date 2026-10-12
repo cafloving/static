@@ -1,0 +1,725 @@
+/* 全站响应式布局（bet-decisions / bet-management / risk-exposure 等） */
+
+html {
+    overflow-x: auto;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    overflow-x: auto;
+    max-width: 100vw;
+}
+
+.app-main {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding-left: clamp(0.5rem, 2vw, 1.25rem);
+    padding-right: clamp(0.5rem, 2vw, 1.25rem);
+    overflow-x: visible;
+}
+
+/* 业务页面包裹：勿再套 container-fluid，避免双层留白 */
+.odd-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.odd-page .form-label {
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font-size: 0.8125rem;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+    color: rgba(203, 213, 225, 0.92);
+}
+
+/* ---------- 筛选区整体 ---------- */
+.odd-filter-form,
+.bet-mgmt-filters,
+.odd-filter-panel {
+    position: relative;
+    background: linear-gradient(160deg, rgba(28, 38, 56, 0.92) 0%, rgba(18, 24, 40, 0.88) 100%);
+    border: 1px solid rgba(0, 212, 255, 0.14);
+    border-radius: 12px;
+    padding: 1.15rem 1.35rem 1.25rem;
+    margin-bottom: 1.35rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.odd-filter-form::before,
+.bet-mgmt-filters::before,
+.odd-filter-panel::before {
+    content: '▾  筛选条件';
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #00d4ff;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.35rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.odd-filter-panel::before {
+    grid-column: 1 / -1;
+}
+
+/* 输入框 / 下拉（筛选区统一） */
+.odd-page .odd-filter-form .form-control,
+.odd-page .odd-filter-form .form-select,
+.odd-page .bet-mgmt-filters .form-control,
+.odd-page .bet-mgmt-filters .form-select,
+.odd-page .odd-filter-panel .form-control,
+.odd-page .odd-filter-panel .form-select,
+.odd-page .odd-filter-panel input[type="datetime-local"],
+.odd-page .odd-filter-form input[type="datetime-local"],
+.odd-page .bet-mgmt-filters input[type="datetime-local"],
+.odd-page .form-control-sm,
+.odd-page .form-select-sm {
+    min-height: 2.25rem;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: #e8edf2;
+    background: rgba(12, 18, 32, 0.75);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 8px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    color-scheme: dark;
+}
+
+.odd-page .odd-filter-form .form-control::placeholder,
+.odd-page .bet-mgmt-filters .form-control::placeholder {
+    color: rgba(148, 163, 184, 0.55);
+    font-size: 0.8125rem;
+}
+
+.odd-page .odd-filter-form .form-control:hover,
+.odd-page .odd-filter-form .form-select:hover,
+.odd-page .bet-mgmt-filters .form-control:hover,
+.odd-page .bet-mgmt-filters .form-select:hover {
+    border-color: rgba(0, 212, 255, 0.35);
+    background: rgba(16, 24, 40, 0.85);
+}
+
+.odd-page .odd-filter-form .form-control:focus,
+.odd-page .odd-filter-form .form-select:focus,
+.odd-page .bet-mgmt-filters .form-control:focus,
+.odd-page .bet-mgmt-filters .form-select:focus {
+    border-color: #00d4ff;
+    background: rgba(20, 30, 48, 0.95);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.18);
+    color: #fff;
+    outline: none;
+}
+
+.odd-page .odd-filter-form .form-select,
+.odd-page .bet-mgmt-filters .form-select {
+    cursor: pointer;
+    padding-right: 2rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2300d4ff' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+    background-size: 12px;
+}
+
+/* 范围输入（最小 - 最大） */
+.odd-page .odd-filter-form .input-group {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.12);
+}
+
+.odd-page .odd-filter-form .input-group .form-control {
+    border-radius: 0;
+    border-top: 1px solid rgba(148, 163, 184, 0.22);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.odd-page .odd-filter-form .input-group .form-control:first-child {
+    border-left: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 8px 0 0 8px;
+}
+
+.odd-page .odd-filter-form .input-group .form-control:last-child {
+    border-right: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 0 8px 8px 0;
+}
+
+.odd-page .odd-filter-form .input-group-text {
+    background: rgba(0, 212, 255, 0.08);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-left: none;
+    border-right: none;
+    color: rgba(0, 212, 255, 0.85);
+    font-size: 0.8125rem;
+    padding: 0 0.5rem;
+}
+
+/* 筛选项字段块（下单管理等） */
+.bet-mgmt-filters .filter-item {
+    padding: 0.55rem 0.65rem 0.65rem;
+    background: rgba(8, 12, 24, 0.35);
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    border-radius: 10px;
+    transition: border-color 0.2s ease;
+}
+
+.bet-mgmt-filters .filter-item:focus-within {
+    border-color: rgba(0, 212, 255, 0.35);
+    box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.08);
+}
+
+.bet-mgmt-filters .filter-item .form-label {
+    margin-bottom: 0.35rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(148, 163, 184, 0.95);
+}
+
+/* Bootstrap 栅格筛选项（下单决策、历史赔率等） */
+.odd-page .odd-filter-form .row > [class*="col-"] {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 0.65rem 0.65rem;
+    background: rgba(8, 12, 24, 0.35);
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    border-radius: 10px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.odd-page .odd-filter-form .row > [class*="col-"]:focus-within {
+    border-color: rgba(0, 212, 255, 0.35);
+    box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.08);
+}
+
+.odd-page .odd-filter-form .row > [class*="col-"]:has(.odd-filter-actions),
+.odd-page .odd-filter-form .row > [class*="col-"]:has(> .odd-filter-actions) {
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+}
+
+.odd-page .odd-filter-form .odd-filter-actions {
+    width: 100%;
+}
+
+.odd-filter-form .row > [class*="col-"] > .form-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(148, 163, 184, 0.95);
+}
+
+/* odd-filter-panel 网格布局（若使用） */
+.odd-filter-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 1rem 1.35rem;
+    width: 100%;
+}
+
+/* 面板内多行 bootstrap row 展开为同一网格 */
+.odd-filter-panel > .row.odd-filter-row,
+.odd-filter-panel > .row {
+    display: contents;
+    margin: 0;
+}
+
+.odd-page > .row.odd-filter-row:not(.odd-filter-panel .row),
+.filter-section:not(.bet-mgmt-filters) > .row.odd-filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 1rem 1.35rem;
+    margin-bottom: 0.85rem;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+}
+
+/* 下单管理等使用自有 filter 布局的页面，不受全局 col 重置影响 */
+.bet-mgmt-filters [class*="col-"] {
+    width: auto !important;
+    max-width: none !important;
+    flex: initial !important;
+    padding: initial !important;
+    margin: initial !important;
+}
+
+/* 仅 odd-filter-panel 内扁平 Grid 时重置列宽；普通 filter-section 保持 Bootstrap 栅格 */
+.odd-filter-panel [class*="col-"],
+.odd-page > .row.odd-filter-row:not(.odd-filter-form .row) > [class*="col-"],
+.odd-filter-panel > .odd-filter-field {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-width: 0;
+}
+
+.odd-filter-form .row,
+.bet-mgmt-filters .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+}
+
+.odd-filter-form .row > [class*="col-"] {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+/* 日期范围、按钮组占两列 */
+.odd-filter-field--span2 {
+    grid-column: span 2;
+}
+
+.odd-filter-panel .odd-filter-actions {
+    grid-column: 1 / -1;
+}
+
+.odd-filter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.25rem;
+    padding: 0.75rem 1rem;
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px dashed rgba(0, 212, 255, 0.2);
+    border-radius: 10px;
+}
+
+.odd-filter-actions .btn {
+    min-height: 2.25rem;
+    padding: 0.4rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.odd-filter-actions .btn-primary {
+    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+    border: none;
+    box-shadow: 0 4px 14px rgba(13, 110, 253, 0.35);
+}
+
+.odd-filter-actions .btn-primary:hover {
+    box-shadow: 0 6px 18px rgba(13, 110, 253, 0.45);
+    transform: translateY(-1px);
+}
+
+.odd-filter-actions .btn-outline-secondary {
+    border-color: rgba(148, 163, 184, 0.4);
+    color: #cbd5e1;
+}
+
+.odd-filter-actions .btn-outline-secondary:hover {
+    background: rgba(148, 163, 184, 0.12);
+    border-color: rgba(148, 163, 184, 0.6);
+    color: #fff;
+}
+
+.odd-filter-actions .btn-outline-success {
+    border-color: rgba(11, 232, 129, 0.5);
+    color: #0be881;
+}
+
+.odd-filter-actions .btn-outline-success:hover {
+    background: rgba(11, 232, 129, 0.12);
+    color: #0be881;
+}
+
+.odd-page .odd-filter-form .form-check-input,
+.odd-page .bet-mgmt-filters .form-check-input {
+    width: 1.05em;
+    height: 1.05em;
+    margin-top: 0.15em;
+    border-color: rgba(148, 163, 184, 0.45);
+    background-color: rgba(12, 18, 32, 0.8);
+}
+
+.odd-page .odd-filter-form .form-check-input:checked,
+.odd-page .bet-mgmt-filters .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.odd-page .form-check-label.text-danger {
+    font-size: 0.8125rem;
+}
+
+/* 筛选区内普通按钮（历史赔率等最后一行） */
+.odd-page .odd-filter-form > form > .row:last-child .btn,
+.odd-page .odd-filter-form .btn-sm {
+    min-height: 2.25rem;
+    padding: 0.4rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.odd-page .odd-filter-form > form > .row:last-child .btn-primary {
+    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+    border: none;
+    box-shadow: 0 4px 14px rgba(13, 110, 253, 0.3);
+}
+
+/* 宽屏最多 4 列，避免筛选项排太密 */
+@media (min-width: 1600px) {
+    .odd-filter-panel {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 1200px) and (max-width: 1599.98px) {
+    .odd-filter-panel {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.odd-filter-actions .btn {
+    flex: 0 1 auto;
+}
+
+@media (max-width: 575.98px) {
+    .odd-filter-field--span2 {
+        grid-column: span 1;
+    }
+}
+
+/* ---------- 页头 / 卡片工具栏 ---------- */
+.odd-page-toolbar,
+.odd-card-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+}
+
+.odd-card-toolbar > *:last-child,
+.odd-page-toolbar > *:last-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.odd-page-toolbar h2,
+.odd-page-toolbar h5 {
+    margin-bottom: 0;
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+}
+
+/* ---------- 表格横向滚动 ---------- */
+.table-responsive {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.odd-table-scroll,
+.table-responsive.odd-table-scroll {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: scroll;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    border-radius: 0 0 0.5rem 0.5rem;
+    padding-bottom: 4px;
+    scrollbar-gutter: stable;
+}
+
+.odd-table-scroll::-webkit-scrollbar,
+.table-responsive.odd-table-scroll::-webkit-scrollbar {
+    height: 14px;
+}
+
+.odd-table-scroll::-webkit-scrollbar-track,
+.table-responsive.odd-table-scroll::-webkit-scrollbar-track {
+    background: rgba(148, 163, 184, 0.15);
+    border-radius: 7px;
+}
+
+.odd-table-scroll::-webkit-scrollbar-thumb,
+.table-responsive.odd-table-scroll::-webkit-scrollbar-thumb {
+    background: rgba(13, 110, 253, 0.55);
+    border-radius: 7px;
+    border: 2px solid rgba(26, 35, 50, 0.3);
+}
+
+.odd-table-scroll::-webkit-scrollbar-thumb:hover,
+.table-responsive.odd-table-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(13, 110, 253, 0.85);
+}
+
+/* 宽表：小屏横滑；大屏尽量铺满 */
+.odd-table-scroll > table,
+.odd-table-scroll .management-table,
+.odd-table-scroll #decisionsTable,
+.odd-table-scroll #riskTable {
+    width: max-content;
+    min-width: 100%;
+    margin-bottom: 0;
+}
+
+.odd-table-x-scroll #decisionsTable,
+.odd-table-scroll #decisionsTable {
+    table-layout: fixed;
+    width: 100%;
+    min-width: 1638px;
+}
+
+.odd-table-x-scroll .management-table,
+.odd-table-scroll .management-table {
+    min-width: 1320px;
+}
+
+@media (max-width: 1199.98px) {
+    .odd-table-scroll > table:not(#decisionsTable),
+    .odd-table-scroll #riskTable {
+        min-width: 1000px;
+    }
+}
+
+.odd-table-scroll-hint {
+    font-size: 0.8125rem;
+    color: var(--color-accent-cyan, #00d4ff);
+    background: rgba(13, 110, 253, 0.12);
+    padding: 0.45rem 1rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(13, 110, 253, 0.25);
+}
+
+.odd-table-scroll-hint i {
+    margin-right: 0.35rem;
+}
+
+/* 顶部横向滚动条：与下方表格 scrollLeft 同步，避免只能摸到底部滚动 */
+.odd-table-top-scroll {
+    width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    height: 16px;
+    background: rgba(148, 163, 184, 0.12);
+    border-bottom: 1px solid rgba(13, 110, 253, 0.2);
+    scrollbar-gutter: stable;
+}
+
+.odd-table-top-scroll::-webkit-scrollbar {
+    height: 14px;
+}
+
+.odd-table-top-scroll::-webkit-scrollbar-track {
+    background: rgba(148, 163, 184, 0.15);
+    border-radius: 7px;
+}
+
+.odd-table-top-scroll::-webkit-scrollbar-thumb {
+    background: rgba(13, 110, 253, 0.55);
+    border-radius: 7px;
+    border: 2px solid rgba(26, 35, 50, 0.3);
+}
+
+.odd-table-top-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(13, 110, 253, 0.85);
+}
+
+.odd-table-top-scroll-inner {
+    height: 1px;
+    pointer-events: none;
+}
+
+/* 有顶部滚动条时，隐藏表格底部滚动条（触控板滑动仍可用） */
+.odd-table-scroll-wrap--topbar .odd-table-scroll {
+    scrollbar-width: none;
+    padding-bottom: 0;
+}
+
+.odd-table-scroll-wrap--topbar .odd-table-scroll::-webkit-scrollbar {
+    height: 0;
+    display: none;
+}
+
+/* 操作列 sticky */
+/* 操作列：随表格横向滚动，避免钉在视口外 */
+.odd-table-scroll td.col-action,
+.odd-table-scroll th.col-action {
+    overflow: visible;
+    white-space: normal;
+    min-width: 118px;
+    width: 118px;
+    vertical-align: top;
+}
+
+.odd-table-scroll thead .col-action {
+    z-index: 4;
+}
+
+.table .btn,
+.table .btn-sm,
+.action-btns .btn {
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+    touch-action: manipulation;
+}
+
+/* 表格：舒适行高，不压字 */
+.odd-page .table-sm > :not(caption) > * > * {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.45;
+}
+
+.odd-page .table thead th {
+    padding: 0.7rem 0.75rem;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+}
+
+.table .btn-sm {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.8125rem;
+}
+
+.odd-page .action-btns {
+    gap: 0.35rem;
+}
+
+/* 卡片占满宽度；含宽表时勿 hidden，否则无法横向拖动 */
+.odd-page .card {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1.25rem;
+    overflow: visible;
+}
+
+.odd-page .card-body.p-0 {
+    padding: 0 !important;
+    overflow: visible;
+}
+
+/* 专用横向滚动容器（bet-decisions 等） */
+.odd-table-x-scroll {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: scroll !important;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
+    scrollbar-gutter: stable;
+    padding-bottom: 6px;
+    background: rgba(10, 14, 39, 0.35);
+}
+
+.odd-table-x-scroll::-webkit-scrollbar {
+    height: 16px;
+}
+
+.odd-table-x-scroll::-webkit-scrollbar-track {
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    margin: 0 8px;
+}
+
+.odd-table-x-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #0d6efd, #00d4ff);
+    border-radius: 8px;
+    min-width: 48px;
+}
+
+.odd-table-x-scroll table {
+    margin-bottom: 0;
+}
+
+.odd-table-x-scroll {
+    cursor: grab;
+}
+
+.odd-table-x-scroll.is-dragging {
+    cursor: grabbing;
+    user-select: none;
+}
+
+.odd-table-x-scroll.is-dragging * {
+    cursor: grabbing;
+}
+
+.odd-hscroll-slider-wrap {
+    background: rgba(13, 110, 253, 0.08);
+    border-top: 1px solid rgba(13, 110, 253, 0.2);
+}
+
+.odd-hscroll-slider-wrap .form-range {
+    height: 1.25rem;
+    cursor: pointer;
+}
+
+.odd-hscroll-slider-wrap .form-range::-webkit-slider-thumb {
+    width: 18px;
+    height: 18px;
+    background: #0d6efd;
+    border-radius: 50%;
+    cursor: grab;
+}
+
+.odd-page .filter-section.odd-filter-panel {
+    padding: 1.25rem 1.5rem;
+}
+
+/* 分页 */
+.odd-page .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.15rem;
+}
+
+/* 导航栏统计 */
+@media (max-width: 991.98px) {
+    .navbar .d-flex.align-items-center {
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+
+    .btn-group-sm.action-btns {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+
+    .odd-page-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .odd-page-toolbar > *:last-child {
+        justify-content: flex-start;
+    }
+}

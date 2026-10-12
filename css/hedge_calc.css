@@ -1,0 +1,206 @@
+/* 导航栏左侧三向计算器：样式自带 !important，避免各页 extra_css 盖掉 */
+
+.hedge-calc-widget {
+    position: relative;
+    z-index: 1090;
+    flex-shrink: 0;
+    margin-right: 0.65rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.hedge-calc-fab {
+    height: 34px;
+    padding: 0 0.65rem;
+    border: none !important;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #0a0e27 !important;
+    background: linear-gradient(135deg, #7ee8ff 0%, #00d4ff 55%, #f7b731 100%) !important;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.45),
+        0 0 12px rgba(0, 212, 255, 0.85),
+        0 0 22px rgba(247, 183, 49, 0.4);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    animation: hedge-calc-glow 1.8s ease-in-out infinite;
+}
+
+.hedge-calc-fab-text {
+    color: #0a0e27 !important;
+    font-weight: 700;
+}
+
+.hedge-calc-fab:hover {
+    filter: brightness(1.08);
+}
+
+.hedge-calc-fab[aria-expanded="true"] {
+    animation: none;
+}
+
+@keyframes hedge-calc-glow {
+    0%, 100% {
+        box-shadow:
+            0 0 0 1px rgba(255, 255, 255, 0.4),
+            0 0 8px rgba(0, 212, 255, 0.55);
+    }
+    50% {
+        box-shadow:
+            0 0 0 1px rgba(255, 255, 255, 0.75),
+            0 0 16px rgba(0, 212, 255, 1),
+            0 0 28px rgba(247, 183, 49, 0.55);
+    }
+}
+
+.hedge-calc-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 520px;
+    max-width: calc(100vw - 24px);
+    padding: 0.7rem 0.75rem 0.65rem;
+    border-radius: 12px;
+    background: rgba(16, 22, 38, 0.78) !important;
+    border: 1px solid rgba(126, 232, 255, 0.4);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.32);
+    color: #e8edf2 !important;
+}
+
+.hedge-calc-panel[hidden] {
+    display: none !important;
+}
+
+.hedge-calc-widget .hedge-calc-head,
+.hedge-calc-widget .hedge-calc-label,
+.hedge-calc-widget .hedge-calc-hint,
+.hedge-calc-widget .hedge-calc-result,
+.hedge-calc-widget .hedge-calc-meta,
+.hedge-calc-widget .hedge-calc-fx-time,
+.hedge-calc-widget .hedge-calc-ccy {
+    color: #e8edf2 !important;
+}
+
+.hedge-calc-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.hedge-calc-close {
+    border: none !important;
+    background: transparent !important;
+    color: rgba(232, 237, 242, 0.75) !important;
+    cursor: pointer;
+    padding: 0 2px;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.hedge-calc-row {
+    display: grid;
+    grid-template-columns: 58px 40px minmax(52px, 1fr) minmax(52px, 1fr) minmax(52px, 1fr);
+    gap: 5px;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.hedge-calc-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.hedge-calc-panel input[type="number"] {
+    width: 100%;
+    min-width: 0;
+    height: 30px;
+    padding: 0 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
+    background: rgba(255, 255, 255, 0.14) !important;
+    color: #fff !important;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.hedge-calc-panel input[type="number"]:focus {
+    outline: none;
+    border-color: #00d4ff !important;
+    background: rgba(255, 255, 255, 0.22) !important;
+}
+
+.hedge-calc-hint {
+    display: grid;
+    grid-template-columns: 58px 40px minmax(52px, 1fr) minmax(52px, 1fr) minmax(52px, 1fr);
+    gap: 5px;
+    font-size: 0.62rem;
+    opacity: 0.55;
+    margin: -2px 0 8px;
+}
+
+.hedge-calc-ccy {
+    width: 100%;
+    min-width: 0;
+    height: 30px;
+    padding: 0 2px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
+    background: rgba(255, 255, 255, 0.14) !important;
+    color: #fff !important;
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+
+.hedge-calc-ccy option {
+    color: #111;
+    background: #fff;
+}
+
+.hedge-calc-result {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    font-size: 0.8rem;
+}
+
+.hedge-calc-profit-pos {
+    color: #0be881 !important;
+    font-weight: 700;
+}
+
+.hedge-calc-profit-neg {
+    color: #ff6b7a !important;
+    font-weight: 700;
+}
+
+.hedge-calc-profit-zero {
+    color: rgba(232, 237, 242, 0.8) !important;
+    font-weight: 600;
+}
+
+.hedge-calc-meta {
+    font-size: 0.68rem;
+    opacity: 0.7;
+}
+
+.hedge-calc-note {
+    font-size: 0.66rem;
+    line-height: 1.35;
+    color: rgba(247, 183, 49, 0.95) !important;
+}
+
+.hedge-calc-widget .hedge-calc-fx-time {
+    font-size: 0.66rem;
+    opacity: 0.9;
+    font-variant-numeric: tabular-nums;
+    color: rgba(126, 232, 255, 0.95) !important;
+}

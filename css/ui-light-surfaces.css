@@ -1,0 +1,205 @@
+/* 全站浅色内容区、表单与导航下拉修复 */
+
+:root {
+    --ui-surface: #f4f6f8;
+    --ui-input-bg: #f5f6f8;
+    --ui-input-text: #111111;
+    --ui-placeholder: #6c757d;
+    --ui-body-text: #212529;
+    --ui-border: #ced4da;
+}
+
+body {
+    background: var(--ui-surface) !important;
+    color: var(--ui-body-text);
+}
+
+body::before {
+    display: none;
+}
+
+/* 一级导航下拉：置顶、不透明 */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1040;
+    overflow: visible;
+}
+
+.navbar .dropdown-menu {
+    z-index: 1055 !important;
+    background-color: var(--ui-surface) !important;
+    opacity: 1 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--ui-border);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.12);
+}
+
+.navbar .dropdown-item {
+    color: var(--ui-body-text) !important;
+}
+
+.navbar .dropdown-item:hover,
+.navbar .dropdown-item:focus {
+    background-color: #e9ecef !important;
+    color: #0d6efd !important;
+}
+
+.navbar .dropdown-item.active,
+.navbar .dropdown-item:active {
+    background-color: #0d6efd !important;
+    color: #ffffff !important;
+}
+
+/* 主内容区浅底 */
+.app-main {
+    background: var(--ui-surface);
+    color: var(--ui-body-text);
+}
+
+.app-subnav {
+    background: var(--ui-surface) !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* 全站输入框 / 下拉 */
+.app-main .form-control,
+.app-main .form-select,
+.app-main input[type="text"],
+.app-main input[type="number"],
+.app-main input[type="datetime-local"],
+.app-main input[type="search"],
+.app-main input[type="email"],
+.app-main input[type="password"],
+.app-main textarea {
+    background-color: var(--ui-input-bg) !important;
+    color: var(--ui-input-text) !important;
+    border-color: var(--ui-border) !important;
+    color-scheme: light;
+}
+
+.app-main .form-control::placeholder,
+.app-main textarea::placeholder {
+    color: var(--ui-placeholder) !important;
+    opacity: 1;
+}
+
+.app-main .form-control:focus,
+.app-main .form-select:focus,
+.app-main textarea:focus {
+    background-color: #fafbfc !important;
+    color: var(--ui-input-text) !important;
+    border-color: #86b7fe !important;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15) !important;
+}
+
+.app-main .form-label {
+    color: #495057 !important;
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 500;
+}
+
+/* 卡片与表格 */
+.app-main .card {
+    background: var(--ui-surface) !important;
+    color: var(--ui-body-text);
+}
+
+.app-main .card-header {
+    background: #eef0f3 !important;
+    color: var(--ui-body-text) !important;
+    border-bottom-color: var(--ui-border) !important;
+}
+
+.app-main .card-body,
+.app-main .card-footer {
+    background: var(--ui-surface) !important;
+    color: var(--ui-body-text);
+}
+
+.app-main .table {
+    color: var(--ui-body-text);
+    --bs-table-bg: var(--ui-surface);
+    --bs-table-color: var(--ui-body-text);
+}
+
+.app-main .table thead th {
+    background: #eef0f3 !important;
+    color: var(--ui-body-text) !important;
+}
+
+.app-main .table-striped > tbody > tr:nth-of-type(odd) > * {
+    --bs-table-accent-bg: rgba(0, 0, 0, 0.025);
+    color: var(--ui-body-text);
+}
+
+/* 覆盖 responsive-layout 深色筛选面板 */
+.app-main .odd-filter-form,
+.app-main .bet-mgmt-filters,
+.app-main .odd-filter-panel {
+    background: #eef0f3 !important;
+    border-color: var(--ui-border) !important;
+    box-shadow: none !important;
+}
+
+.app-main .odd-filter-form::before,
+.app-main .bet-mgmt-filters::before,
+.app-main .odd-filter-panel::before {
+    color: #495057 !important;
+    border-bottom-color: var(--ui-border) !important;
+}
+
+.app-main .odd-page .odd-filter-form .row > [class*="col-"],
+.app-main .bet-mgmt-filters .filter-item {
+    background: var(--ui-input-bg) !important;
+    border-color: var(--ui-border) !important;
+}
+
+.app-main .odd-filter-actions {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border-color: var(--ui-border) !important;
+}
+
+.app-main .odd-filter-actions .btn-outline-secondary {
+    color: #495057 !important;
+    border-color: var(--ui-border) !important;
+}
+
+.app-main .odd-filter-actions .btn-outline-secondary:hover {
+    background: #e9ecef !important;
+    color: #212529 !important;
+}
+
+.app-main .odd-page .form-label {
+    color: #495057 !important;
+}
+
+.app-main .filter-bar {
+    background: #eef0f3 !important;
+}
+
+.app-main .stat-card {
+    background: #eef0f3 !important;
+    color: var(--ui-body-text);
+}
+
+.app-main h1,
+.app-main h2,
+.app-main h3,
+.app-main h4,
+.app-main h5,
+.app-main h6,
+.app-main p,
+.app-main td,
+.app-main th,
+.app-main span:not(.badge):not(.btn),
+.app-main .pager-bar {
+    color: inherit;
+}
+
+.app-main .text-muted {
+    color: #6c757d !important;
+}

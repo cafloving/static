@@ -1,0 +1,609 @@
+/* =====================================================
+   ODD4 博彩套利系统 - 金融交易室主题
+   设计理念：专业、精确、高科技
+   ===================================================== */
+
+:root {
+    /* 主色调 - 深色金融风格 */
+    --color-bg-primary: #0a0e27;
+    --color-bg-secondary: #141b2d;
+    --color-bg-tertiary: #1c2536;
+    --color-bg-card: #1a2332;
+    --color-bg-hover: #212d40;
+    
+    /* 强调色 - 金融科技 */
+    --color-accent-gold: #f7b731;
+    --color-accent-cyan: #00d4ff;
+    --color-accent-green: #0be881;
+    --color-accent-red: #ff4757;
+    --color-accent-purple: #a55eea;
+    
+    /* 文字颜色 */
+    --color-text-primary: #e8edf2;
+    --color-text-secondary: #a0aec0;
+    --color-text-muted: #64748b;
+    --color-text-dim: #475569;
+    
+    /* 边框和分隔线 */
+    --color-border-subtle: rgba(148, 163, 184, 0.1);
+    --color-border-normal: rgba(148, 163, 184, 0.2);
+    --color-border-strong: rgba(148, 163, 184, 0.3);
+    
+    /* 数据可视化颜色 */
+    --color-chart-up: #10b981;
+    --color-chart-down: #ef4444;
+    --color-chart-neutral: #6366f1;
+    
+    /* 字体家族 */
+    --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+    
+    /* 尺寸和间距 */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    
+    /* 圆角 */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    
+    /* 阴影 */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px rgba(0, 212, 255, 0.3);
+    --shadow-glow-gold: 0 0 20px rgba(247, 183, 49, 0.3);
+    
+    /* 动画时长 */
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 400ms;
+}
+
+/* =====================================================
+   全局样式重置
+   ===================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-body);
+    background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* 页面加载动画背景网格 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* =====================================================
+   导航栏样式
+   ===================================================== */
+
+.navbar {
+    background: var(--color-bg-card) !important;
+    border-bottom: 1px solid var(--color-border-normal);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md);
+}
+
+.navbar-brand {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--color-accent-cyan) !important;
+    text-shadow: var(--shadow-glow);
+    transition: all var(--duration-normal) ease;
+}
+
+.navbar-brand:hover {
+    transform: translateY(-2px);
+    text-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+}
+
+.navbar-brand i {
+    margin-right: 0.5rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.nav-link {
+    color: var(--color-text-secondary) !important;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.75rem 1.25rem !important;
+    border-radius: var(--radius-md);
+    transition: all var(--duration-fast) ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-accent-cyan), var(--color-accent-purple));
+    transition: width var(--duration-normal) ease;
+}
+
+.nav-link:hover {
+    color: var(--color-text-primary) !important;
+    background: var(--color-bg-hover);
+    transform: translateY(-2px);
+}
+
+.nav-link:hover::before {
+    width: 100%;
+}
+
+.nav-link.active {
+    color: var(--color-accent-cyan) !important;
+    background: rgba(0, 212, 255, 0.1);
+    font-weight: 600;
+}
+
+.nav-link.active::before {
+    width: 100%;
+}
+
+/* 导航栏徽章 */
+.navbar .badge {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border-subtle);
+}
+
+/* =====================================================
+   卡片组件
+   ===================================================== */
+
+.card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-normal);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: all var(--duration-normal) ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background: var(--color-bg-tertiary);
+    border-bottom: 1px solid var(--color-border-normal);
+    padding: 1.25rem 1.5rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+}
+
+/* 统计卡片特殊样式 */
+.stats-card {
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-accent-cyan), var(--color-accent-purple));
+    opacity: 0;
+    transition: opacity var(--duration-normal) ease;
+}
+
+.stats-card:hover::before {
+    opacity: 1;
+}
+
+.stats-card .card-title {
+    font-family: var(--font-mono);
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--color-accent-cyan), var(--color-accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.stats-card .card-text {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+/* =====================================================
+   表格样式
+   ===================================================== */
+
+.table {
+    color: var(--color-text-primary);
+    font-size: 0.9rem;
+}
+
+.table thead th {
+    background: var(--color-bg-tertiary);
+    border-bottom: 2px solid var(--color-border-normal);
+    color: var(--color-text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid var(--color-border-subtle);
+    transition: all var(--duration-fast) ease;
+}
+
+.table tbody tr:hover {
+    background: var(--color-bg-hover);
+    transform: scale(1.01);
+}
+
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.table code {
+    font-family: var(--font-mono);
+    background: var(--color-bg-tertiary);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85em;
+    color: var(--color-accent-cyan);
+    border: 1px solid var(--color-border-subtle);
+}
+
+/* =====================================================
+   徽章和标签
+   ===================================================== */
+
+.badge {
+    font-weight: 600;
+    padding: 0.45em 0.85em;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+}
+
+.badge-primary { 
+    background: rgba(0, 212, 255, 0.2); 
+    color: var(--color-accent-cyan); 
+    border-color: rgba(0, 212, 255, 0.3);
+}
+
+.badge-success { 
+    background: rgba(11, 232, 129, 0.2); 
+    color: var(--color-accent-green); 
+    border-color: rgba(11, 232, 129, 0.3);
+}
+
+.badge-danger { 
+    background: rgba(255, 71, 87, 0.2); 
+    color: var(--color-accent-red); 
+    border-color: rgba(255, 71, 87, 0.3);
+}
+
+.badge-warning { 
+    background: rgba(247, 183, 49, 0.2); 
+    color: var(--color-accent-gold); 
+    border-color: rgba(247, 183, 49, 0.3);
+}
+
+.badge-secondary { 
+    background: rgba(160, 174, 192, 0.2); 
+    color: var(--color-text-secondary); 
+    border-color: rgba(160, 174, 192, 0.3);
+}
+
+/* =====================================================
+   按钮样式
+   ===================================================== */
+
+.btn {
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    transition: all var(--duration-normal) ease;
+    border: 2px solid transparent;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translate(-50%, -50%);
+    transition: width var(--duration-slow) ease, height var(--duration-slow) ease;
+}
+
+.btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--color-accent-cyan), var(--color-accent-purple));
+    border-color: transparent;
+    color: white;
+    box-shadow: var(--shadow-glow);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+}
+
+.btn-outline-primary {
+    background: transparent;
+    border-color: var(--color-accent-cyan);
+    color: var(--color-accent-cyan);
+}
+
+.btn-outline-primary:hover {
+    background: var(--color-accent-cyan);
+    color: var(--color-bg-primary);
+    box-shadow: var(--shadow-glow);
+}
+
+.btn-outline-danger {
+    background: transparent;
+    border-color: var(--color-accent-red);
+    color: var(--color-accent-red);
+}
+
+.btn-outline-danger:hover {
+    background: var(--color-accent-red);
+    color: white;
+}
+
+.btn-success {
+    background: var(--color-accent-green);
+    border-color: var(--color-accent-green);
+    color: var(--color-bg-primary);
+}
+
+.btn i {
+    margin-right: 0.5rem;
+}
+
+/* =====================================================
+   表单元素
+   ===================================================== */
+
+.form-control,
+.form-select {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border-normal);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    transition: all var(--duration-fast) ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background: var(--color-bg-card);
+    border-color: var(--color-accent-cyan);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    color: var(--color-text-primary);
+    outline: none;
+}
+
+.form-label {
+    color: var(--color-text-secondary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* =====================================================
+   工具类
+   ===================================================== */
+
+.text-muted {
+    color: var(--color-text-muted) !important;
+}
+
+.text-primary {
+    color: var(--color-accent-cyan) !important;
+}
+
+.text-success {
+    color: var(--color-accent-green) !important;
+}
+
+.text-danger {
+    color: var(--color-accent-red) !important;
+}
+
+.text-warning {
+    color: var(--color-accent-gold) !important;
+}
+
+.bg-primary {
+    background-color: var(--color-bg-card) !important;
+}
+
+.bg-dark {
+    background-color: var(--color-bg-primary) !important;
+}
+
+/* =====================================================
+   动画效果
+   ===================================================== */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp var(--duration-slow) ease;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.loading-shimmer {
+    background: linear-gradient(
+        90deg,
+        var(--color-bg-tertiary) 0%,
+        var(--color-bg-hover) 50%,
+        var(--color-bg-tertiary) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* =====================================================
+   响应式设计
+   ===================================================== */
+
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+    
+    .stats-card .card-title {
+        font-size: 2rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+/* =====================================================
+   滚动条样式
+   ===================================================== */
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent-cyan);
+}
+
+/* =====================================================
+   页脚样式
+   ===================================================== */
+
+footer {
+    background: var(--color-bg-card);
+    border-top: 1px solid var(--color-border-normal);
+    color: var(--color-text-secondary);
+}
+
+footer h5 {
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+footer a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: color var(--duration-fast) ease;
+}
+
+footer a:hover {
+    color: var(--color-accent-cyan);
+}

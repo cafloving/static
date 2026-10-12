@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Detail · Lay-Back</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/css/hedge_calc.css" rel="stylesheet">
+    <style>
+        body { background: #f5f7fb; color: #1a1a1a; }
+        .share-wrap { max-width: 720px; margin: 24px auto; padding: 0 16px 40px; }
+        .share-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 16px; }
+        .share-card h1 { font-size: 1.25rem; margin: 0 0 4px; }
+        .share-match { font-size: 1.15rem; font-weight: 600; margin: 12px 0 8px; color: #111; }
+        .share-meta { color: #666; font-size: .9rem; line-height: 1.6; }
+        .leg { padding: 14px 0; border-top: 1px solid #eee; }
+        .leg:first-of-type { border-top: 0; }
+        .leg-top { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+        .leg-dir { font-weight: 600; min-width: 56px; }
+        .leg a { word-break: break-all; }
+        .leg-source { margin-top: 8px; padding: 8px 10px; background: #f7f8fc; border-radius: 8px; font-size: .85rem; color: #444; line-height: 1.55; }
+        .leg-source .lbl { color: #888; }
+        .share-calc { position: relative !important; z-index: 1; margin: 0 0 8px; width: 100%; }
+        .share-calc .hedge-calc-fab { margin-bottom: 8px; }
+        .share-calc .hedge-calc-panel {
+            position: relative !important; top: auto !important; left: auto !important;
+            right: auto !important; width: 100% !important; max-width: 100% !important;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="share-wrap">
+        <div id="shareMain" class="share-card">
+            <h1 id="shareTitle">Lay-Back</h1>
+            <div class="share-match" id="shareMatch">Charlton Athletic vs Portsmouth FC</div>
+            <div class="share-meta" id="shareMeta"></div>
+            <div id="shareLegs"></div>
+            <p class="share-meta mt-3 mb-0">Compare live odds on each platform, adjust amounts in the calculator below, then place bets yourself.</p>
+        </div>
+
+        <div class="hedge-calc-widget share-calc" id="hedgeCalcWidget">
+            <button type="button" class="hedge-calc-fab" id="hedgeCalcFab" title="Lay-Back hedge calculator" aria-expanded="false" aria-controls="hedgeCalcPanel">
+                <i class="bi bi-calculator"></i>
+                <span class="hedge-calc-fab-text">Calculator</span>
+            </button>
+            <form class="hedge-calc-panel" id="hedgeCalcPanel" hidden autocomplete="off" onsubmit="return false;">
+                <div class="hedge-calc-head">
+                    <span id="hedgeCalcTitle">3-way Calculator</span>
+                    <button type="button" class="hedge-calc-close" id="hedgeCalcClose" aria-label="Close">×</button>
+                </div>
+                <div class="hedge-calc-hint"><span>CCY</span><span></span><span>EU</span><span>US</span><span>Stake</span></div>
+                <div id="hedgeCalcRowsThreeWay">
+                    <div class="hedge-calc-row">
+                        <select class="hedge-calc-ccy" id="hedgeCalcCcyHome" data-key="home"></select>
+                        <span class="hedge-calc-label">HOME</span>
+                        <input type="number" id="hedgeCalcOddsHome" min="1.01" step="0.01" placeholder="EU" aria-label="HOME EU odds">
+                        <input type="number" id="hedgeCalcOddsHomeUs" step="1" placeholder="US" aria-label="HOME US odds">
+                        <input type="number" id="hedgeCalcStakeHome" min="0.01" step="0.01">
+                    </div>
+                    <div class="hedge-calc-row">
+                        <select class="hedge-calc-ccy" id="hedgeCalcCcyDraw" data-key="draw"></select>
+                        <span class="hedge-calc-label">DRAW</span>
+                        <input type="number" id="hedgeCalcOddsDraw" min="1.01" step="0.01" placeholder="EU" aria-label="DRAW EU odds">
+                        <input type="number" id="hedgeCalcOddsDrawUs" step="1" placeholder="US" aria-label="DRAW US odds">
+                        <input type="number" id="hedgeCalcStakeDraw" min="0.01" step="0.01">
+                    </div>
+                    <div class="hedge-calc-row">
+                        <select class="hedge-calc-ccy" id="hedgeCalcCcyAway" data-key="away"></select>
+                        <span class="hedge-calc-label">AWAY</span>
+                        <input type="number" id="hedgeCalcOddsAway" min="1.01" step="0.01" placeholder="EU" aria-label="AWAY EU odds">
+                        <input type="number" id="hedgeCalcOddsAwayUs" step="1" placeholder="US" aria-label="AWAY US odds">
+                        <input type="number" id="hedgeCalcStakeAway" min="0.01" step="0.01">
+                    </div>
+                </div>
+                <div id="hedgeCalcRowsLayBack" hidden>
+                    <div class="hedge-calc-row">
+                        <select class="hedge-calc-ccy" id="hedgeCalcCcyBack" data-key="back"></select>
+                        <span class="hedge-calc-label">BACK</span>
+                        <input type="number" id="hedgeCalcOddsBack" min="1.01" step="0.01" placeholder="EU" aria-label="BACK EU odds">
+                        <input type="number" id="hedgeCalcOddsBackUs" step="1" placeholder="US" aria-label="BACK US odds">
+                        <input type="number" id="hedgeCalcStakeBack" min="0.01" step="0.01">
+                    </div>
+                    <div class="hedge-calc-row">
+                        <select class="hedge-calc-ccy" id="hedgeCalcCcyLay" data-key="lay"></select>
+                        <span class="hedge-calc-label">LAY</span>
+                        <input type="number" id="hedgeCalcOddsLay" min="1.01" step="0.01" placeholder="EU" aria-label="LAY EU odds">
+                        <input type="number" id="hedgeCalcOddsLayUs" step="1" placeholder="US" aria-label="LAY US odds">
+                        <input type="number" id="hedgeCalcStakeLay" min="0.01" step="0.01">
+                    </div>
+                </div>
+                <div class="hedge-calc-result">
+                    <span id="hedgeCalcProfit" class="hedge-calc-profit-zero">Enter BACK / LAY odds</span>
+                    <span id="hedgeCalcMeta" class="hedge-calc-meta"></span>
+                </div>
+                <div id="hedgeCalcFxTime" class="hedge-calc-fx-time"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>window.__HEDGE_CALC_LANG__ = 'en';</script>
+    <script src="/static/js/hedge_calc.js?v=3"></script>
+    <script>
+    (function () {
+        var p = {
+            strategy_label: 'Lay-Back',
+            home_team: 'Charlton Athletic',
+            away_team: 'Portsmouth FC',
+            country_name: 'England',
+            league_name: 'Championship',
+            platforms: ['bet365', 'betfairexchange'],
+            expires_at: '2026-09-08T18:00:00Z',
+            legs: [
+                { bet_type: 'HOME', quote_side: 'back', platform: 'bet365', odds: 2.90, rec_odds: 2.90,
+                  bet_url: 'https://example.com/home', source_event_name: 'Charlton vs Portsmouth', source_league: 'Championship' },
+                { bet_type: 'HOME', quote_side: 'lay', platform: 'betfairexchange', odds: 2.70, rec_odds: 2.70,
+                  bet_url: 'https://example.com/lay', source_event_name: 'Charlton Athletic v Portsmouth', source_league: 'Championship' }
+            ],
+            calc: { mode: 'lay_back', ccy: 'USDT', back_odds: 2.90, lay_odds: 2.70, back_stake: 1000 },
+            fx_rates: { USD: 1, USDT: 1 }
+        };
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+        document.getElementById('shareTitle').textContent = p.strategy_label;
+        document.getElementById('shareMatch').textContent = p.home_team + ' vs ' + p.away_team;
+        document.getElementById('shareMeta').innerHTML = [
+            'Country: ' + p.country_name,
+            'League: ' + p.league_name,
+            'Platforms: ' + p.platforms.join(', '),
+            'Fee: platform rate folded in calc',
+            'Expires: ' + p.expires_at
+        ].map(esc).join('<br>');
+        var legsEl = document.getElementById('shareLegs');
+        p.legs.forEach(function (leg) {
+            var dir = (leg.bet_type || '').toUpperCase();
+            var side = (leg.quote_side || '').toLowerCase();
+            var dirLabel = dir + (side ? ' · ' + side.toUpperCase() : '');
+            var o = Number(leg.rec_odds || leg.odds || 0);
+            var src = '';
+            if (leg.source_event_name) src += '<div><span class="lbl">Platform match: </span>' + esc(leg.source_event_name) + '</div>';
+            if (leg.source_league) src += '<div><span class="lbl">Platform league: </span>' + esc(leg.source_league) + '</div>';
+            var row = document.createElement('div');
+            row.className = 'leg';
+            row.innerHTML = '<div class="leg-top"><span class="leg-dir">' + esc(dirLabel) + '</span><span>' +
+                esc(leg.platform) + '</span><span>@ ' + esc(o) + '</span><a class="leg-plat-link" href="' +
+                esc(leg.bet_url) + '" target="_blank">Open platform</a></div><div class="leg-source">' + src + '</div>';
+            legsEl.appendChild(row);
+        });
+        function applyCalc() {
+            if (!(window.HedgeCalc && window.HedgeCalc.applyPreset)) return false;
+            return window.HedgeCalc.applyPreset({
+                mode: 'lay_back',
+                backOdds: p.calc.back_odds,
+                layOdds: p.calc.lay_odds,
+                backStake: p.calc.back_stake,
+                ccy: p.calc.ccy,
+                open: true,
+                fxRates: p.fx_rates
+            });
+        }
+        var n = 0, t = setInterval(function () { if (applyCalc() || ++n > 40) clearInterval(t); }, 50);
+    })();
+    </script>
+</body>
+</html>
