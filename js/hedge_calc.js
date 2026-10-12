@@ -169,31 +169,53 @@
         };
     }
 
-    /** lay↔back：backStake@Ob，layStake = backStake*Ob/Ol；两边结果相同，买价不高于卖价时为亏损。 */
-    function calcLayBack(backOdds, layOdds, backStake) {
+    function winFeeRate(rate) {
+        var r = Number(rate);
+        return isFinite(r) && r > 0 && r < 1 ? r : 0;
+    }
+
+    /** 正利润才抽；亏损和走水不抽。 */
+    function profitAfterWinFee(gross, rate) {
+        var r = winFeeRate(rate);
+        if (!(gross > 0) || !(r > 0)) return gross;
+        return gross * (1 - r);
+    }
+
+    /** lay↔back：按两边输赢分别算利润，抽水只扣打赢一边的盈利。 */
+    function calcLayBack(backOdds, layOdds, backStake, backFee, layFee) {
         var ob = parsePos(backOdds), ol = parsePos(layOdds), sb = parsePos(backStake);
+        var rb = winFeeRate(backFee), rl = winFeeRate(layFee);
         if (ob <= 1 || ol <= 1 || sb <= 0) return null;
-        var sl = sb * ob / ol;
+        var obNet = 1 + (ob - 1) * (1 - rb);
+        var denom = ol - rl;
+        if (!(obNet > 0) || !(denom > 0)) return null;
+        var sl = sb * obNet / denom;
         var liability = sl * (ol - 1);
-        var profit = sb * (ob - ol) / ol;
+        var backWin = profitAfterWinFee(sb * (ob - 1), rb) - liability;
+        var layWin = profitAfterWinFee(sl, rl) - sb;
+        var profit = Math.min(backWin, layWin);
         var total = sb + liability;
         return {
             backStake: sb,
             layStake: sl,
             liability: liability,
             total: total,
-            payout: sb * ob,
+            payout: total + profit,
             profit: profit,
             pct: total > 0 ? profit / total : 0,
-            roi: ob / ol,
+            roi: (rb === 0 && rl === 0) ? (ob / ol) : (total > 0 ? 1 + profit / total : 0),
         };
     }
 
-    function calcLayBackFromLay(backOdds, layOdds, layStake) {
+    function calcLayBackFromLay(backOdds, layOdds, layStake, backFee, layFee) {
         var ob = parsePos(backOdds), ol = parsePos(layOdds), sl = parsePos(layStake);
+        var rb = winFeeRate(backFee), rl = winFeeRate(layFee);
         if (ob <= 1 || ol <= 1 || sl <= 0) return null;
-        var sb = sl * ol / ob;
-        return calcLayBack(ob, ol, sb);
+        var obNet = 1 + (ob - 1) * (1 - rb);
+        var denom = ol - rl;
+        if (!(obNet > 0) || !(denom > 0)) return null;
+        var sb = sl * denom / obNet;
+        return calcLayBack(ob, ol, sb, rb, rl);
     }
 
     /**
@@ -633,6 +655,13 @@
         return o * (1 - rn) + rn;
     }
 
+    /** 买盘赢利抽水后的兑现赔率：1+(o-1)×(1-费率)。 */
+    function netBackOdds(o, rate) {
+        var r = winFeeRate(rate);
+        if (!(r > 0) || !(o > 1)) return o;
+        return 1 + (o - 1) * (1 - r);
+    }
+
     function currentFeeN() {
         if (feeN >= 2) return feeN;
         if (calcMode === 'lay_back' || calcMode === 'eu_asia') return 2;
@@ -641,12 +670,11 @@
     }
 
     function foldOdds(o, key) {
-        return effectiveOdds(o, feeByKey[key] || 0, currentFeeN());
+        return netBackOdds(o, feeByKey[key] || 0);
     }
 
     function feeMdText() {
-        var n = currentFeeN();
-        var parts = [t('手续费 1/' + n + 'MD', 'Fee 1/' + n + 'MD')];
+        var parts = [t('盈利抽水', 'Win commission')];
         var labels = {
             home: t('主', 'H'), draw: t('平', 'D'), away: t('客', 'A'),
             back: 'Back', lay: 'Lay', eu: t('欧', 'EU'), ah: t('亚', 'AH'),
@@ -663,7 +691,7 @@
 
     function appendFeeToMeta() {
         if (!metaEl || !metaEl.textContent) return;
-        if (metaEl.textContent.indexOf('手续费') >= 0 || metaEl.textContent.indexOf('Fee 1/') >= 0) return;
+        if (metaEl.textContent.indexOf('盈利抽水') >= 0 || metaEl.textContent.indexOf('Win commission') >= 0) return;
         metaEl.textContent += ' · ' + feeMdText();
     }
 
@@ -723,9 +751,11 @@
                 });
                 if (!back || !lay) return;
                 var lb = calcLayBack(
-                    effectiveOdds(shareLegOdds(back), shareLegFee(back), feeN),
-                    effectiveOdds(shareLegOdds(lay), shareLegFee(lay), feeN),
-                    SHARE_BASE
+                    shareLegOdds(back),
+                    shareLegOdds(lay),
+                    SHARE_BASE,
+                    shareLegFee(back),
+                    shareLegFee(lay)
                 );
                 if (!lb) return;
                 out.dirs[bt] = lb.backStake + lb.layStake;
@@ -747,9 +777,8 @@
             var euSub = ((eu.sub_orders) || [])[0];
             var ahSub = ((ah.sub_orders) || [])[0];
             var drawSub = draw ? ((draw.sub_orders) || [])[0] : null;
-            var feeLegs = draw ? 3 : 2;
-            var euEff = effectiveOdds(shareLegOdds(euSub || eu), shareLegFee(euSub || eu), feeLegs);
-            var ahEff = effectiveOdds(shareLegOdds(ahSub || ah), shareLegFee(ahSub || ah), feeLegs);
+            var euEff = netBackOdds(shareLegOdds(euSub || eu), shareLegFee(euSub || eu));
+            var ahEff = netBackOdds(shareLegOdds(ahSub || ah), shareLegFee(ahSub || ah));
             var line = null;
             if (ahSub && ahSub.has_line) line = parseFloat(ahSub.line);
             else if (ah && ah.has_line) line = parseFloat(ah.line);
@@ -757,7 +786,7 @@
             var euHome = String(euKey || '').toUpperCase() !== 'AWAY';
             var ahHome = String(ahKey || '').toUpperCase() === 'AH_HOME';
             if (draw) {
-                var drawEff = effectiveOdds(shareLegOdds(drawSub || draw), shareLegFee(drawSub || draw), 3);
+                var drawEff = netBackOdds(shareLegOdds(drawSub || draw), shareLegFee(drawSub || draw));
                 var ea3 = calcEuAsia3W(euEff, drawEff, ahEff, SHARE_BASE, euHome, ahHome, line == null ? 0 : line);
                 if (!ea3) return out;
                 out.dirs[euKey] = ea3.euStake;
@@ -785,7 +814,7 @@
             keys.forEach(function (bt) {
                 var d = dirs[bt];
                 var sub = ((d && d.sub_orders) || [])[0];
-                var o = effectiveOdds(shareLegOdds(sub || d), shareLegFee(sub || d), feeN);
+                var o = netBackOdds(shareLegOdds(sub || d), shareLegFee(sub || d));
                 if (!(o > 1)) return;
                 oddsArr.push(o);
                 order.push({ bt: bt, sub: sub });
@@ -831,9 +860,9 @@
         var dSub = (draw.sub_orders || [])[0];
         var aSub = (away.sub_orders || [])[0];
         var tw = calcFromAnchor({
-            home: effectiveOdds(shareLegOdds(hSub || home), shareLegFee(hSub || home), 3),
-            draw: effectiveOdds(shareLegOdds(dSub || draw), shareLegFee(dSub || draw), 3),
-            away: effectiveOdds(shareLegOdds(aSub || away), shareLegFee(aSub || away), 3),
+            home: netBackOdds(shareLegOdds(hSub || home), shareLegFee(hSub || home)),
+            draw: netBackOdds(shareLegOdds(dSub || draw), shareLegFee(dSub || draw)),
+            away: netBackOdds(shareLegOdds(aSub || away), shareLegFee(aSub || away)),
         }, 'home', SHARE_BASE);
         if (!tw) return out;
         out.dirs.HOME = tw.stakes.home;
@@ -1009,6 +1038,7 @@
     }
 
     function renderThree(result, skipStakeKey) {
+        syncWinFeeInput();
         if (!result) {
             renderProfit(null, null, null, 0, t('输入三方赔率', 'Enter 3-way odds'));
             return;
@@ -1026,6 +1056,7 @@
     }
 
     function renderLayBack(result, skipStakeKey) {
+        syncWinFeeInput();
         if (!result) {
             renderProfit(null, null, null, 0, t('输入 BACK / LAY 赔率', 'Enter BACK / LAY odds'));
             return;
@@ -1047,6 +1078,7 @@
     }
 
     function renderEuAsia(result, skipStakeKey) {
+        syncWinFeeInput();
         if (!result) {
             setEuAsiaNote('');
             renderProfit(null, null, null, 0, t('输入欧盘 / 亚盘赔率', 'Enter EU / Asian odds'));
@@ -1125,15 +1157,15 @@
             renderLayBack(null);
             return;
         }
-        var ob = foldOdds(parsePos(oddsInputs.back.value), 'back');
-        var ol = foldOdds(parsePos(oddsInputs.lay.value), 'lay');
+        var ob = parsePos(oddsInputs.back.value);
+        var ol = parsePos(oddsInputs.lay.value);
         var ak = (skipStakeKey === 'lay' || anchorKey === 'lay') ? 'lay' : 'back';
         var stakeDisp = readStake(ak);
         if (ak === 'back' && stakeDisp <= 0) stakeDisp = HOME_DEFAULT;
         var stakeUsd = toUsd(stakeDisp, rowCcy[ak]);
         var lb = ak === 'lay'
-            ? calcLayBackFromLay(ob, ol, stakeUsd)
-            : calcLayBack(ob, ol, stakeUsd);
+            ? calcLayBackFromLay(ob, ol, stakeUsd, feeByKey.back, feeByKey.lay)
+            : calcLayBack(ob, ol, stakeUsd, feeByKey.back, feeByKey.lay);
         renderLayBack(lb, skipStakeKey);
     }
 
@@ -1581,6 +1613,39 @@
         }
     }
 
+    function syncWinFeeInput() {
+        var input = document.getElementById('hedgeCalcWinFee');
+        if (!input || document.activeElement === input) return;
+        var vals = [];
+        activeKeys().forEach(function (k) {
+            if (feeByKey[k] > 0) vals.push(feeByKey[k]);
+        });
+        if (!vals.length) {
+            input.value = '';
+            return;
+        }
+        var same = vals.every(function (v) { return Math.abs(v - vals[0]) < 1e-9; });
+        input.value = same ? String(Math.round(vals[0] * 1000) / 10) : '';
+    }
+
+    function ensureWinFeeInput() {
+        if (!panel || document.getElementById('hedgeCalcWinFee')) return;
+        var result = panel.querySelector('.hedge-calc-result');
+        if (!result) return;
+        var row = document.createElement('label');
+        row.className = 'hedge-calc-fee';
+        row.style.cssText = 'display:flex;align-items:center;gap:8px;margin:6px 0;font-size:12px;';
+        row.innerHTML = '<span>盈利抽水%</span><input type="number" id="hedgeCalcWinFee" min="0" max="99" step="0.1" placeholder="0" style="width:72px">';
+        result.parentNode.insertBefore(row, result);
+        document.getElementById('hedgeCalcWinFee').addEventListener('input', function () {
+            var pct = parseFloat(this.value);
+            var rate = isFinite(pct) && pct > 0 ? pct / 100 : 0;
+            if (!(rate > 0 && rate < 1)) rate = 0;
+            Object.keys(feeByKey).forEach(function (k) { feeByKey[k] = rate; });
+            recalc();
+        });
+    }
+
     function applyPreset(opts) {
         if (!panel) return false;
         opts = opts || {};
@@ -1642,7 +1707,7 @@
                     ccySelects[k].value = ccy;
                 }
             });
-            var lb = calcLayBack(foldOdds(backO, 'back'), foldOdds(layO, 'lay'), toUsd(backS, ccy));
+            var lb = calcLayBack(backO, layO, toUsd(backS, ccy), feeByKey.back, feeByKey.lay);
             if (!lb) {
                 writing = false;
                 return false;
@@ -1802,6 +1867,7 @@
         labelEu = document.getElementById('hedgeCalcLabelEu');
         labelAh = document.getElementById('hedgeCalcLabelAh');
         if (!root || !panel || !fab) return;
+        ensureWinFeeInput();
 
         oddsInputs = {
             home: document.getElementById('hedgeCalcOddsHome'),

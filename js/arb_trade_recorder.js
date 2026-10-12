@@ -132,6 +132,8 @@
             } else if (!(fx > 0)) {
                 throw new Error('leg ' + idx + ': FX→Base required when currency ≠ ' + accountBaseCcy);
             }
+            var src = ((share && share.legs) || [])[idx] || {};
+            var fee = Number(src.fee);
             out.push({
                 leg_index: idx,
                 actual_odds: odds || null,
@@ -139,6 +141,7 @@
                 currency: ccy === 'OTHER' ? 'OTHER' : ccy,
                 fx_rate_to_base: fx,
                 place_status: status,
+                fee: (fee > 0 && fee < 1) ? fee : 0,
             });
         });
         return out;
@@ -151,7 +154,9 @@
             if (L.place_status === 'not_placed' || L.place_status === 'failed') return;
             if (!(L.actual_odds > 1) || !(L.actual_stake >= 0)) return;
             var base = L.actual_stake * (L.fx_rate_to_base || 1);
-            active.push({ odds: L.actual_odds, stake: base });
+            var fee = Number(L.fee);
+            if (!(fee > 0 && fee < 1)) fee = 0;
+            active.push({ odds: L.actual_odds, stake: base, fee: fee });
         });
         if (active.length < 2) return null;
         var total = 0;
@@ -159,7 +164,9 @@
         if (!(total > 0)) return null;
         var worst = Infinity;
         active.forEach(function (a) {
-            var profit = a.stake * a.odds - total;
+            var win = a.stake * (a.odds - 1);
+            if (win > 0 && a.fee > 0) win *= (1 - a.fee);
+            var profit = a.stake + win - total;
             if (profit < worst) worst = profit;
         });
         return worst / total;
@@ -190,11 +197,26 @@
         if (!(back.actual_odds > 1) || !(lay.actual_odds > 1)) return null;
         if (!(back.actual_stake > 0)) return null;
         var ob = back.actual_odds, ol = lay.actual_odds;
-        if (!(ob > ol)) return null;
+        var rb = Number(back.fee), rl = Number(lay.fee);
+        if (!(rb > 0 && rb < 1)) rb = 0;
+        if (!(rl > 0 && rl < 1)) rl = 0;
         var sb = back.actual_stake * (back.fx_rate_to_base || 1);
-        var sl = sb * ob / ol;
+        if (rb === 0 && rl === 0) {
+            if (!(ob > ol)) return null;
+            var sl0 = sb * ob / ol;
+            var liability0 = sl0 * (ol - 1);
+            var profit0 = sb * (ob - ol) / ol;
+            var total0 = sb + liability0;
+            return total0 > 0 ? profit0 / total0 : null;
+        }
+        var obNet = 1 + (ob - 1) * (1 - rb);
+        var denom = ol - rl;
+        if (!(obNet > 0) || !(denom > 0)) return null;
+        var sl = sb * obNet / denom;
         var liability = sl * (ol - 1);
-        var profit = sb * (ob - ol) / ol;
+        var backWin = sb * (ob - 1) * (1 - rb) - liability;
+        var layWin = sl * (1 - rl) - sb;
+        var profit = Math.min(backWin, layWin);
         var total = sb + liability;
         return total > 0 ? profit / total : null;
     }
@@ -205,8 +227,13 @@
         if (!(eu.actual_odds > 1) || !(ah.actual_odds > 1) || !(eu.actual_stake > 0)) return null;
         var x = eu.actual_stake * (eu.fx_rate_to_base || 1);
         var o = eu.actual_odds, a = ah.actual_odds;
-        var y = x * o / a;
-        var profit = Math.min(x * (o - 1) - y, y * (a - 1) - x);
+        var euFee = Number(eu.fee), ahFee = Number(ah.fee);
+        if (!(euFee > 0 && euFee < 1)) euFee = 0;
+        if (!(ahFee > 0 && ahFee < 1)) ahFee = 0;
+        var oNet = 1 + (o - 1) * (1 - euFee);
+        var aNet = 1 + (a - 1) * (1 - ahFee);
+        var y = x * oNet / aNet;
+        var profit = Math.min(x * (o - 1) * (1 - euFee) - y, y * (a - 1) * (1 - ahFee) - x);
         var total = x + y;
         return total > 0 ? profit / total : null;
     }
