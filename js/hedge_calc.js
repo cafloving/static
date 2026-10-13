@@ -191,7 +191,10 @@
         if (!(obNet > 0) || !(denom > 0)) return null;
         var sl = sb * obNet / denom;
         var liability = sl * (ol - 1);
-        var backWin = profitAfterWinFee(sb * (ob - 1), rb) - liability;
+        var backGross = sb * (ob - 1);
+        var backFeeAmt = backGross > 0 ? backGross * rb : 0;
+        var layFeeAmt = sl * rl;
+        var backWin = profitAfterWinFee(backGross, rb) - liability;
         var layWin = profitAfterWinFee(sl, rl) - sb;
         var profit = Math.min(backWin, layWin);
         var total = sb + liability;
@@ -199,6 +202,8 @@
             backStake: sb,
             layStake: sl,
             liability: liability,
+            backFeeAmt: backFeeAmt,
+            layFeeAmt: layFeeAmt,
             total: total,
             payout: total + profit,
             profit: profit,
@@ -1071,10 +1076,20 @@
         writing = false;
         var unit = displayCode(displayCcy);
         renderProfit(result.profit, result.total, result.payout, result.pct);
+        var feeBits = [];
+        if (result.layFeeAmt > 0) {
+            feeBits.push(t('手续费 ', 'Fee ') + fmtN(fromUsd(result.layFeeAmt, displayCcy), displayCcy) + ' ' + unit);
+        }
+        if (result.backFeeAmt > 0) {
+            feeBits.push(t('Back 手续费 ', 'Back fee ') + fmtN(fromUsd(result.backFeeAmt, displayCcy), displayCcy) + ' ' + unit);
+        }
+        if (feeBits.length && profitEl) profitEl.textContent += '  ' + feeBits.join('  ');
         metaEl.textContent = t('总投入 ', 'Total ') + fmtN(fromUsd(result.total, displayCcy), displayCcy) + ' ' + unit
             + t(' · Lay 责任 ', ' · Lay liability ') + fmtN(fromUsd(result.liability, displayCcy), displayCcy) + ' ' + unit
-            + t(' · 返还 ', ' · Payout ') + fmtN(fromUsd(result.payout, displayCcy), displayCcy) + ' ' + unit
-            + ' · ' + feeMdText();
+            + (result.layFeeAmt > 0
+                ? (t(' · 手续费 ', ' · Fee ') + fmtN(fromUsd(result.layFeeAmt, displayCcy), displayCcy) + ' ' + unit)
+                : '')
+            + t(' · 返还 ', ' · Payout ') + fmtN(fromUsd(result.payout, displayCcy), displayCcy) + ' ' + unit;
     }
 
     function renderEuAsia(result, skipStakeKey) {
