@@ -47,6 +47,9 @@
             const raw = params.get(f.key);
             if (f.type === 'check') {
                 el.checked = raw === '1' || raw === 'true';
+            } else if (el.multiple) {
+                const want = new Set(String(raw || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean));
+                Array.from(el.options).forEach(function (o) { o.selected = want.has(o.value); });
             } else if (f.type === 'datetime') {
                 el.value = fromUrlDatetime(raw);
             } else {
@@ -70,6 +73,9 @@
             if (!el) continue;
             if (f.type === 'check') {
                 if (el.checked) out[f.key] = '1';
+            } else if (el.multiple) {
+                const selected = Array.from(el.selectedOptions).map(function (o) { return o.value; }).filter(Boolean);
+                if (selected.length) out[f.key] = selected.join(',');
             } else if (el.value !== undefined && el.value !== null && String(el.value) !== '') {
                 out[f.key] = el.value;
             }

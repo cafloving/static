@@ -718,12 +718,58 @@
         return String((sub && sub.quote_side) || '').trim().toLowerCase();
     }
 
+    // 落库短名是手册叶名。计算器分支认引擎名。对不上就走三项盘，亚盘两腿配不出金额。
+    function shareCalcKind(strategyType) {
+        var st = String(strategyType || '').trim().toUpperCase();
+        var prefixes = ['FT-EARLY-', 'FT-CLOSE-', 'FT-LIVE-', 'FT-PRE-', 'FT-HT-', 'FT-FT-'];
+        var i;
+        for (i = 0; i < prefixes.length; i++) {
+            if (st.indexOf(prefixes[i]) === 0) {
+                st = st.slice(prefixes[i].length);
+                break;
+            }
+        }
+        switch (st) {
+        case 'LAY_BACK':
+        case 'EU_ASIA':
+        case 'CS_DUTCH':
+        case 'MULTI_LEG':
+            return st;
+        case 'EU-3W':
+        case 'AH-2W':
+        case 'OU-2W':
+        case 'BTTS-2W':
+        case 'DC-3W':
+        case 'DNB-2W':
+        case 'EH-3W':
+        case 'C1X2-3W':
+        case 'COU-2W':
+        case 'CD1X2-3W':
+        case 'CDOU-2W':
+        case 'AH-ML-2':
+            return 'LAY_BACK';
+        case 'CMH-EU-AH-2W':
+        case 'CMH-EU-AH-3W':
+            return 'EU_ASIA';
+        case 'CS-ML-N':
+            return 'CS_DUTCH';
+        case 'AH-ML-3':
+        case 'AH-ML-4':
+        case 'OU-ML-3':
+        case 'OU-ML-4':
+        case 'TT-ML-N':
+            return 'MULTI_LEG';
+        default:
+            return st;
+        }
+    }
+
     /**
      * 与短链计算器同一口径：锚 1000，1/N MD 折完再配平。
      * 返回 { dirs: {betType: mainStake}, subs: {sub_order_id: stake} }
      */
     function shareDisplay(strategyType, directions) {
-        var st = String(strategyType || '').trim().toUpperCase();
+        var st = shareCalcKind(strategyType);
         var dirs = directions || {};
         var out = { dirs: {}, subs: {} };
         var keys = Object.keys(dirs);
